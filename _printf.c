@@ -10,9 +10,14 @@
  * @count: Number of characters printed
  * Return: Number of characters printed (excluding null byte)
  */
+
+int print_string(va_list args, int *count);
+int print_char(va_list args, int *count);
+int print_int(va_list args, int *count);
+int print_rev(va_list args, int *count);
+
 int _printf(const char *format, ...)
 {
-	int chara_print = 0;
 	int count = 0;
 	va_list args;
 
@@ -25,27 +30,29 @@ int _printf(const char *format, ...)
 
 	while (*format)
 	{
-		if (*format == '%' && (++format))
+		if (*format == '%' && *(format + 1))
 		{
 			int (*handlers[256])(va_list, int *) = { NULL };
-			handlers[(unsigned char)'s'] = print_string;
-			handlers[(unsigned char)'c'] = print_char;
-			handlers[(unsigned char)'d'] = handlers[(unsigned char)'i'] = print_int;
+			handlers[(unsigned char)('s')] = print_string;
+			handlers[(unsigned char)('c')] = print_char;
+			handlers[(unsigned char)('d')] = handlers[(unsigned char)('i')] = print_int;
+			handlers[(unsigned char)('r')] = print_rev;
 
-			if (handlers[(unsigned char)(*format)])
+			if (handlers[(unsigned char)(*(format + 1))])
 			{
-				handlers[(unsigned char)(*format)](args, &count);
+				handlers[(unsigned char)(*(format + 1))](args, &count);
+				format += 2;
 			}
 			else
 			{
-				write(1, format - 1, 2);
-				chara_print += 2;
+				write(1, format, 1);
+				count++;
+				format++;
 			}
 		}
 		else
 		{
 			write(1, format, 1);
-			chara_print++;
 			count++;
 			format++;
 		}
@@ -53,13 +60,6 @@ int _printf(const char *format, ...)
 	va_end(args);
 	return (count);
 }
-
-/**
- * print_string - function to print a string
- * @str: String to be printed
- *
- * Return: count
- */
 
 int print_string(va_list args, int *count)
 {
@@ -73,13 +73,6 @@ int print_string(va_list args, int *count)
 	return (*count);
 }
 
-/**
- * print_char - function to print a character
- * @ch: Character to be printed
- *
- * Return: count
- */
-
 int print_char(va_list args, int *count)
 {
 	char c = va_arg(args, int);
@@ -88,13 +81,6 @@ int print_char(va_list args, int *count)
 	(*count)++;
 	return (*count);
 }
-
-/**
- * print_int - function to print an integer
- * @num: Integer to be printed
- *
- * Return: count
- */
 
 int print_int(va_list args, int *count)
 {
@@ -109,7 +95,8 @@ int print_int(va_list args, int *count)
 		num = -num;
 	}
 
-	do {
+	do
+	{
 		buffer[len++] = num % 10 + '0';
 	} while (num /= 10);
 
@@ -117,6 +104,32 @@ int print_int(va_list args, int *count)
 	{
 		write(1, &buffer[--len], 1);
 		(*count)++;
+	}
+	return (*count);
+}
+
+int print_rev(va_list args, int *count)
+{
+	char *str = va_arg(args, char *);
+	int len = 0;
+
+	if (!str)
+		str = "(null)";
+
+	while (str[len])
+		len++;
+
+	while (len > 0)
+	{
+		if (str[len - 1] != '\n')
+		{
+			write(1, &str[--len], 1);
+			(*count)++;
+		}
+		else
+		{
+			len--;
+		}
 	}
 	return (*count);
 }
