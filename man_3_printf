@@ -1,0 +1,59 @@
+Man_3_printf
+
+NAME
+       _printf - formatted output conversion function
+
+SYNOPSIS
+       #include <stdio.h>
+
+       int _printf(const char *format, ...);
+
+DESCRIPTION
+       The _printf function is a custom implementation of the printf function in
+       the C programming language. It produces output according to a format string that may
+       contain zero or more directives. The format string is composed of conversion specifiers,
+       each beginning with the '%' character.
+
+RETURN VALUE
+       The _printf function returns the number of characters printed to the standard output
+       (stdout), excluding the null byte used to end the output to strings.
+
+CONVERSION SPECIFIERS
+       The _printf function handles the following conversion specifiers:
+
+       %c    Print a single character. The argument for %c must be of type int.
+
+       %s    Print a null-terminated string. The argument for %s must be of type char*.
+
+       %%    Print a literal '%' character.
+
+       %d, %i
+             Print a signed decimal integer. The argument for %d and %i must be of type int.
+
+LIMITATIONS
+       The _printf function does not handle the following features of the printf function:
+
+       - Flag characters.
+       - Field width.
+       - Precision.
+       - Length modifiers.
+
+EXAMPLES
+       Example usage of _printf:
+
+           #include <stdio.h>
+
+           int main() {
+               int num = 42;
+               char str[] = "Hello, World!";
+               _printf("Character: %c\nString: %s\nInteger: %d\nPercent: %%\n", 'A', str, num);
+               return 0;
+           }
+
+
+BUGS
+       There are no known bugs in this implementation.
+
+AUTHORS
+        Yeneishla Santiago
+        Yahsai Santana
