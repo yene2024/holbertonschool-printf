@@ -3,18 +3,16 @@
 #include <string.h>
 #include "main.h"
 
-/**
- * _printf - Custom printf function, calls other functions.
- * @format: Format string containing conversion specifiers
- * @args: Variable arguments list
- * @count: Number of characters printed
- * Return: Number of characters printed (excluding null byte)
- */
-
 int print_string(va_list args, int *count);
 int print_char(va_list args, int *count);
 int print_int(va_list args, int *count);
 int print_rev(va_list args, int *count);
+
+/**
+ * _printf - Custom printf function, calls other functions.
+ * @format: Format string containing conversion specifiers
+ * Return: Number of characters printed (excluding null byte)
+ */
 
 int _printf(const char *format, ...)
 {
@@ -61,6 +59,13 @@ int _printf(const char *format, ...)
 	return (count);
 }
 
+/**
+ * print_string - function to print a string
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
+ */
+
 int print_string(va_list args, int *count)
 {
 	char *str = va_arg(args, char *);
@@ -73,6 +78,13 @@ int print_string(va_list args, int *count)
 	return (*count);
 }
 
+/**
+ * print_char - function to print a character
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
+ */
+
 int print_char(va_list args, int *count)
 {
 	char c = va_arg(args, int);
@@ -81,6 +93,13 @@ int print_char(va_list args, int *count)
 	(*count)++;
 	return (*count);
 }
+
+/**
+ * print_int - print an integer
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
+ */
 
 int print_int(va_list args, int *count)
 {
@@ -95,8 +114,7 @@ int print_int(va_list args, int *count)
 		num = -num;
 	}
 
-	do
-	{
+	do {
 		buffer[len++] = num % 10 + '0';
 	} while (num /= 10);
 
@@ -107,6 +125,13 @@ int print_int(va_list args, int *count)
 	}
 	return (*count);
 }
+
+/**
+ * print_rev - Print a string in reverse.
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
+ */
 
 int print_rev(va_list args, int *count)
 {
