@@ -3,16 +3,19 @@
 #include <string.h>
 #include "main.h"
 
+int print_string(va_list args, int *count);
+int print_char(va_list args, int *count);
+int print_int(va_list args, int *count);
+int print_rev(va_list args, int *count);
+
 /**
  * _printf - Custom printf function, calls other functions.
  * @format: Format string containing conversion specifiers
- * @args: Variable arguments list
- * @count: Number of characters printed
  * Return: Number of characters printed (excluding null byte)
  */
+
 int _printf(const char *format, ...)
 {
-	int chara_print = 0;
 	int count = 0;
 	va_list args;
 
@@ -25,27 +28,29 @@ int _printf(const char *format, ...)
 
 	while (*format)
 	{
-		if (*format == '%' && (++format))
+		if (*format == '%' && *(format + 1))
 		{
 			int (*handlers[256])(va_list, int *) = { NULL };
-			handlers[(unsigned char)'s'] = print_string;
-			handlers[(unsigned char)'c'] = print_char;
-			handlers[(unsigned char)'d'] = handlers[(unsigned char)'i'] = print_int;
+			handlers[(unsigned char)('s')] = print_string;
+			handlers[(unsigned char)('c')] = print_char;
+			handlers[(unsigned char)('d')] = handlers[(unsigned char)('i')] = print_int;
+			handlers[(unsigned char)('r')] = print_rev;
 
-			if (handlers[(unsigned char)(*format)])
+			if (handlers[(unsigned char)(*(format + 1))])
 			{
-				handlers[(unsigned char)(*format)](args, &count);
+				handlers[(unsigned char)(*(format + 1))](args, &count);
+				format += 2;
 			}
 			else
 			{
-				write(1, format - 1, 2);
-				chara_print += 2;
+				write(1, format, 1);
+				count++;
+				format++;
 			}
 		}
 		else
 		{
 			write(1, format, 1);
-			chara_print++;
 			count++;
 			format++;
 		}
@@ -56,9 +61,9 @@ int _printf(const char *format, ...)
 
 /**
  * print_string - function to print a string
- * @str: String to be printed
- *
- * Return: count
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
  */
 
 int print_string(va_list args, int *count)
@@ -75,9 +80,9 @@ int print_string(va_list args, int *count)
 
 /**
  * print_char - function to print a character
- * @ch: Character to be printed
- *
- * Return: count
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
  */
 
 int print_char(va_list args, int *count)
@@ -90,10 +95,10 @@ int print_char(va_list args, int *count)
 }
 
 /**
- * print_int - function to print an integer
- * @num: Integer to be printed
- *
- * Return: count
+ * print_int - print an integer
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
  */
 
 int print_int(va_list args, int *count)
@@ -117,6 +122,39 @@ int print_int(va_list args, int *count)
 	{
 		write(1, &buffer[--len], 1);
 		(*count)++;
+	}
+	return (*count);
+}
+
+/**
+ * print_rev - Print a string in reverse.
+ * @args: va_list containing variable arguments
+ * @count: Pointer to the count of characters printed
+ * Return: Count of characters printed
+ */
+
+int print_rev(va_list args, int *count)
+{
+	char *str = va_arg(args, char *);
+	int len = 0;
+
+	if (!str)
+		str = "(null)";
+
+	while (str[len])
+		len++;
+
+	while (len > 0)
+	{
+		if (str[len - 1] != '\n')
+		{
+			write(1, &str[--len], 1);
+			(*count)++;
+		}
+		else
+		{
+			len--;
+		}
 	}
 	return (*count);
 }
