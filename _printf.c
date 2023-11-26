@@ -102,6 +102,7 @@ int print_hex_address(va_list args, int *count)
 {
 	void *addr = va_arg(args, void *);
 	char buffer[20];
+
 	sprintf(buffer, "%p", addr);
 	write(1, buffer, strlen(buffer));
 	(*count) += strlen(buffer);
@@ -119,6 +120,27 @@ int _printf(const char *format, ...)
 {
 	int count = 0;
 	va_list args;
+
+	va_start(args, format);
+
+	sprintf(buffer, "%p", addr);
+	write(1, buffer, strlen(buffer));
+	(*count) += strlen(buffer);
+	return (*count);
+}
+
+
+/**
+ * _printf - Custom printf function, calls other functions.
+ * @format: Format string containing conversion specifiers
+ * Return: Number of characters printed (excluding null byte)
+**/
+
+int _printf(const char *format, ...)
+{
+	int count = 0;
+	va_list args;
+
 	va_start(args, format);
 
 	while (*format)
@@ -135,9 +157,12 @@ int _printf(const char *format, ...)
 			else if (specifier == 'x' || specifier == 'X' || specifier == 'p')
 				handled = print_hex_address(args, &count);
 			else if (specifier == 'u')
-				handled = print_unsigned(args, &count, 0);
+				handled = print_unsigned int(args, &count, 0);
 			else if (specifier == 'o')
-				handled = print_unsigned(args, &count, 1);
+				handled = print_unsigned int(args, &count, 1);
+				handled = print_unsigned int(args, &count, 0);
+			else if (specifier == 'o')
+				handled = print_unsigned int(args, &count, 1);
 			if (handled)
 			{
 				format += 2;
@@ -158,3 +183,4 @@ int _printf(const char *format, ...)
 	va_end(args);
 	return (count);
 }
+
