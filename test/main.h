@@ -6,5 +6,6 @@ int print_chars(va_list args, int *count, int is_char);
 int print_int(va_list args, int *count);
 int print_unsigned(va_list args, int *count, int is_octal);
 int print_hex_address(va_list args, int *count);
+int print_d_i(va_list args, int *count);
 #endif
 
