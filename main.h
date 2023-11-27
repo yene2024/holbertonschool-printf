@@ -1,11 +1,13 @@
 #ifndef MAIN_H
 #define MAIN_H
-
+#include <stddef.h>
+#include <stdlib.h>
 #include <stdarg.h>
-int print_chars(va_list args, int *count, int is_char);
-int print_int(va_list args, int *count);
-int print_unsigned(va_list args, int *count, int is_octal);
-int print_hex_address(va_list args, int *count);
+#include <unistd.h>
+#include <stdint.h>
+int printChar(int c);
+int printStr(char *str);
+int printDigit(long n, int base);
+int specChecker(char spec, va_list ap);
 int _printf(const char *format, ...);
-int print_d_i(va_list args, int *count);
 #endif

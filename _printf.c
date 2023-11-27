@@ -1,195 +1,148 @@
 #include "main.h"
-#include <stdarg.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <unistd.h>
-#include <stdint.h>
-
-int print_int(va_list args, int *count);
-int print_unsigned(va_list args, int *count, int is_octal);
-int print_hex_address(va_list args, int *count);
-int _printf(const char *format, ...);
-
 /**
- * print_chars - Function to print characters or strings.
- * @args: va_list containing variable arguments.
- * @count: Pointer to the count of characters printed.
- * @is_char: 1 if printing a character, 0 if printing a string.
- * Return: Count of characters printed
-**/
-
-int print_chars(va_list args, int *count, int is_char)
+* printChar - Writes one char to the standard output.
+* @c: just a character
+* Return: the value of write.
+*/
+int printChar(int c)
 {
-	char *str;
-	char c;
-
-	if (is_char)
-	{
-		c = va_arg(args, int);
-		if (c == '\0')
-		{
-			write(1, "(null)", 6);
-			*count += 6;
-		}
-		else
-		{
-			write(1, &c, 1);
-			(*count)++;
-		}
-	}
-	else
-	{
-		str = va_arg(args, char *);
-		if (str == NULL)
-		{
-			write(1, "(null)", 6);
-				*count += 6;
-		}
-		else
-		{
-			while (*str)
-			{
-				write(1, str++, 1);
-				(*count)++;
-			}
-		}
-	}
-	return (*count);
+	return (write(1, &c, 1));
 }
 
 /**
- * print_int - Function that print signed integers.
- * @args: va_list containing variable arguments
- * @count: Pointer to the count of characters printed
- * Return: Count of characters printed
+* printStr - Writes a string to the standard output.
+* @str: just a string
+* Return: the count.
 */
-
-int print_int(va_list args, int *count)
+int printStr(char *str)
 {
-	int num = va_arg(args, int), len = 0;
-	char buffer[20];
+	int count = 0, i = 0;
 
-	if (num < 0 && (write(1, "-", 1), 1))
-		num = -num;
-
-	do {
-		buffer[len++] = num % 10 + '0';
-	} while (num /= 10);
-
-	while (len)
-		write(1, &buffer[--len], 1), (*count)++;
-
-	return (*count);
-}
-
-/**
- * print_unsigned - Function to print unsigned integers.
- * @args: va_list containing variable arguments
- * @count: Pointer to the count of characters printed
- * @is_octal: 1 if printing in octal format, 0 otherwise
- * Return: Count of characters printed
-*/
-
-int print_unsigned(va_list args, int *count, int is_octal)
-{
-	unsigned int num = va_arg(args, unsigned int), len = 0;
-	char buffer[20];
-
-	do {
-		buffer[len++] = num % (is_octal ? 8 : 10) + '0';
-	} while (num /= (is_octal ? 8 : 10));
-
-	while (len)
-		write(1, &buffer[--len], 1), (*count)++;
-
-	return (*count);
-}
-
-/**
- * print_hex_address - Function to print hexadecimal addresses.
- * @args: va_list containing variable arguments
- * @count: Pointer to the count of characters printed
- * Return: Count of characters printed
-*/
-
-int print_hex_address(va_list args, int *count)
-{
-	void *addr = va_arg(args, void *);
-	uintptr_t address = (uintptr_t)addr;
-	int leading_zeros = 0;
-	int i = 0;
-
-	if (address == 0)
+	if (str == NULL)
 	{
-		write(1, "(nil)", 5);
-		(*count) += 5;
-		return (*count);
+		return (write(1, "(null)", 6));
 	}
 
-	write(1, "0x", 2);
-	*count += 2;
-
-	for (i = 0; i < 16; ++i)
+	for (; str[i] != '\0'; i++)
 	{
-		int digit = (address >> ((15 - i) * 4)) & 0xF;
-
-		if (digit != 0 || leading_zeros)
-		{
-			char digitChar = (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
-
-			write(1, &digitChar, 1);
-			(*count)++;
-			leading_zeros = 1;
-		}
+		count += printChar(str[i]);
 	}
 
-	return (*count);
-}
-
-/**
- * _printf - Custom printf function, calls other functions.
- * @format: Format string containing conversion specifiers
- * Return: Number of characters printed (excluding null byte)
-*/
-int _printf(const char *format, ...)
-{
-	int count = 0;
-	va_list args;
-
-	va_start(args, format);
-	while (*format)
-	{
-		if (*format == '%' && *(format + 1))
-		{
-			char specifier = *(format + 1);
-			int handled = 0;
-
-			if (specifier == 'c' || specifier == 's')
-				handled = print_chars(args, &count, specifier == 'c');
-			else if (specifier == 'd' || specifier == 'i')
-				handled = print_int(args, &count);
-			else if (specifier == 'x' || specifier == 'X' || specifier == 'p')
-			handled = print_hex_address(args, &count);
-			else if (specifier == 'u')
-				handled = print_unsigned(args, &count, 0);
-			else if (specifier == 'o')
-				handled = print_unsigned(args, &count, 1);
-			if (handled)
-			{
-				format += 2;
-				continue;
-			}
-			if (specifier == '%')
-			{
-				write(1, "%", 1);
-				count++;
-				format += 2;
-				continue;
-			}
-		}
-		write(1, format, 1);
-		count++;
-		format++;
-	}
-	va_end(args);
 	return (count);
 }
 
+/**
+* printDigit - Writes a digit to the standard output.
+* @n: number to write
+* @base: 10
+* Return: the count.
+*/
+int printDigit(long n, int base)
+{
+	int count = 0, i = 0, index = 0;
+	char *digits = "0123456789";
+	char buffer[32];
+
+	if (n < 0)
+	{
+		count += write(1, "-", 1);
+		n = -n;
+	}
+
+	do {
+		buffer[index++] = digits[n % base];
+		n /= base;
+	} while (n > 0);
+
+	for (i = index - 1; i >= 0; i--)
+	{
+		count += printChar(buffer[i]);
+	}
+
+	return (count);
+}
+
+/**
+* specChecker - Checks which specifier is used and redirects to a function.
+* @spec: the character to compare.
+* @ap: the argument pointer
+* Return: the count.
+*/
+int specChecker(char spec, va_list ap)
+{
+	int count = 0;
+
+	if (spec == 'c')
+	{
+		count += printChar(va_arg(ap, int));
+	}
+	else if (spec == 's')
+	{
+		count += printStr(va_arg(ap, char *));
+	}
+	else if (spec == 'i' || spec == 'd')
+	{
+		count += printDigit((long)va_arg(ap, int), 10);
+	}
+	else if (spec == 'x')
+	{
+		count += printDigit((long)va_arg(ap, int), 16);
+	}
+	else if (spec == 'o')
+	{
+		count += printDigit((long)va_arg(ap, int), 8);
+	}
+	else if (spec != '%')
+	{
+		count += printChar('%');
+		count += printChar(spec);
+	}
+	else
+	{
+		count += printChar(spec);
+	}
+	return (count);
+}
+
+/**
+* _printf - Prints what you need it to.
+* @format: the string
+* @..: the arguments
+* Return: the count.
+*/
+int _printf(const char *format, ...)
+{
+	int count = 0, i = 0;
+	va_list ap;
+
+	if (format == NULL)
+	{
+		return (-1);
+	}
+
+	va_start(ap, format);
+	for (; format[i] != '\0'; i++)
+	{
+		if (format[i] == '%')
+		{
+			if (format[i + 1] == '\0')
+			{
+				return (-1);
+			}
+			else
+			{
+				count += specChecker(format[i + 1], ap);
+			}
+			i++;
+		}
+		else
+		{
+			count += write(1, &format[i], 1);
+		}
+	}
+	va_end(ap);
+	return (count);
+}
